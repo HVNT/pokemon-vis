@@ -155,32 +155,21 @@ d3.csv("Pokemon.csv", function (err, data) {
             pokemon[i].color = colorMap[pokemon[i].type];
         }
         mapBMI();
-        console.log(pokemon);
     })();
 
     var x = d3.scale.linear()
-            .domain([d3.min(pokemon, function (d) {
-                return d.id;
-            }), d3.max(pokemon, function (d) {
-                return d.id;
-            })])
+            .domain([0, 155])
             .range([0, width]);
 
     var y = d3.scale.linear()
-            .domain([d3.min(pokemon, function (d) {
-                return 0;
-            }), d3.max(pokemon, function (d) {
-                return d.base_experience * 1.1;
-            })])
+            .domain([0, 410])
             .range([height, 0]);
 
     var scale = d3.scale.sqrt()
-            .domain([d3.min(pokemon, function (d) {
-                return d.bmi;
-            }), d3.max(pokemon, function (d) {
+            .domain([0, d3.max(pokemon, function (d) {
                 return d.bmi;
             })])
-            .range([1, 20]);
+            .range([0, 25]);
 
     var opacity = d3.scale.sqrt()
             .domain([d3.min(pokemon, function (d) {
@@ -204,7 +193,7 @@ d3.csv("Pokemon.csv", function (err, data) {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text(labelY);
-    // x axis and label
+
     svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
@@ -215,6 +204,7 @@ d3.csv("Pokemon.csv", function (err, data) {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text(labelX);
+
     svg.selectAll("circle")
             .data(pokemon)
             .enter()
@@ -236,16 +226,16 @@ d3.csv("Pokemon.csv", function (err, data) {
             })
             .on('mouseover', function (d, i) {
                 fadeCircle(d.color, .1);
-                fadeInText(d, .8);
-
+                fadeInText(d);
             })
             .on('mouseout', function (d, i) {
                 fadeOutCircle();
-                fadeOutText(d, 0);
+                fadeOutText(d);
             })
             .transition()
             .duration(500)
             .ease("bounce");
+
     svg.selectAll("text")
             .data(pokemon)
             .enter()
@@ -263,12 +253,7 @@ d3.csv("Pokemon.csv", function (err, data) {
             .attr("font-size", "20px")
             .attr("fill", "black")
             .attr("display", "none")
-            .on('mouseover', function (d, i) {
-                d3.select(this)
-            })
-            .on('mouseout', function (d, i) {
-
-            }).transition()
+            .transition()
             .duration(500)
             .ease("bounce");
 
@@ -289,7 +274,7 @@ d3.csv("Pokemon.csv", function (err, data) {
                 });
     }
 
-    function fadeInText (pokemon, opacity) {
+    function fadeInText (pokemon) {
         svg.selectAll("text")
                 .filter(function (d) {
                     return pokemon.identifier == d.identifier;
@@ -298,7 +283,7 @@ d3.csv("Pokemon.csv", function (err, data) {
                 .style("display", "inline");
     }
 
-    function fadeOutText (pokemon, opacity) {
+    function fadeOutText (pokemon) {
         svg.selectAll("text")
                 .filter(function (d) {
                     return pokemon.identifier == d.identifier;
@@ -306,7 +291,6 @@ d3.csv("Pokemon.csv", function (err, data) {
                 .transition()
                 .style("display", "none");
     }
-
 
 });
 
