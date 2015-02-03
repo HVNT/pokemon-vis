@@ -224,11 +224,12 @@ d3.csv("Pokemon.csv", function (err, data) {
             .style("fill", function (d) {
                 return d.color;
             })
-            .on('mouseover', function (d, i) {
+            .on('mouseover', function (d) {
                 fadeCircle(d.color, .1);
+                console.log(d);
                 fadeInText(d);
             })
-            .on('mouseout', function (d, i) {
+            .on('mouseout', function (d) {
                 fadeOutCircle();
                 fadeOutText(d);
             })
@@ -279,7 +280,6 @@ d3.csv("Pokemon.csv", function (err, data) {
                 .filter(function (d) {
                     return pokemon.identifier == d.identifier;
                 })
-                .transition()
                 .style("display", "inline");
     }
 
