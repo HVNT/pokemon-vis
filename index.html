@@ -2,129 +2,204 @@
 <html lang="en">
 
 
-    <head>
-        <meta charset="utf-8">
-        <title>D3 Test</title>
-        <script type="text/javascript" src="d3/d3.js"></script>
+<head>
+    <meta charset="utf-8">
+    <title>D3 Test</title>
+    <script type="text/javascript" src="d3/d3.js"></script>
 
-        <style>
-            
-            .chart {
-				/* Adding a background to our canvas */
-                background: aqua;
+    <style>
+
+        .chart rect {
+            fill: steelblue;
+        }
+
+        .chart rect:hover {
+            fill: turquoise;
+        }
+
+        .chart .rectM {
+            stroke: green;
+            stroke-width: 1;
+            fill: green;
+            fill-opacity: .2;
+        }
+
+        .chart .rectM:hover {
+            fill: green;
+            fill-opacity: .5;
+        }
+
+        .chart text {
+            font: 10px sans-serif;
+        }
+
+        .chart .title {
+            font: 15px sans-serif;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+    </style>
+
+
+</head>
+
+
+<body>
+
+<div class="chart"></div>
+<script type="text/javascript"> //src = d3/d3.js?
+
+d3.csv("Pokemon.csv", function (err, data) {
+    var pokemon = [],
+            height = 600,
+            width = 1000,
+            margin = 40,
+            labelX = 'Pokemon ID',
+            labelY = 'Base Experience';
+    var svg = d3.select('.chart')
+            .append('svg')
+            .attr('class', 'chart')
+            .attr("width", width + margin + margin)
+            .attr("height", height + margin + margin)
+            .append("g")
+            .attr("transform", "translate(" + margin + "," + margin + ")");
+
+    function calcBMI(height, weight) {
+        //assume weight in kg
+        return (weight / (height * height));
+    }
+    function mapBMI() {
+        if (pokemon && pokemon.length > 0) {
+            for (var i = 0; i < pokemon.length; i++) {
+                pokemon[i].bmi = calcBMI(pokemon[i].height, pokemon[i].weight);
             }
-            
-            .chart rect {
-              fill: steelblue;
-            }
+        }
+    }
 
-            .chart text {
-              fill: white;
-              font: 10px sans-serif;
-              text-anchor: middle;
-            }
+    (function init() {
+        pokemon = data;
+        for (var i = 0; i < pokemon.length; i++) {
+            pokemon[i].height = parseInt(pokemon[i].height, 10);
+            pokemon[i].weight = parseInt(pokemon[i].weight, 10);
+        }
+        mapBMI();
+        console.log(pokemon);
+    })();
 
-             text.xText{
-              fill: black;
-              font: 10px sans-serif;
-              text-anchor: middle;
-            }
-        </style>
+    var x = d3.scale.linear()
+            .domain([d3.min(pokemon, function (d) {
+                return d.id;
+            }), d3.max(pokemon, function (d) {
+                return d.id;
+            })])
+            .range([0, width]);
 
+    var y = d3.scale.linear()
+            .domain([d3.min(pokemon, function (d) {
+                return d.base_experience;
+            }), d3.max(pokemon, function (d) {
+                return d.base_experience;
+            })])
+            .range([height, 0]);
 
-    </head>
+    var scale = d3.scale.sqrt()
+            .domain([d3.min(pokemon, function (d) {
+                return d.bmi;
+            }), d3.max(pokemon, function (d) {
+                return d.bmi;
+            })])
+            .range([1, 20]);
 
+    var opacity = d3.scale.sqrt()
+            .domain([d3.min(pokemon, function (d) {
+                return d.bmi;
+            }), d3.max(pokemon, function (d) {
+                return d.bmi;
+            })])
+            .range([1, .5]);
 
-    <body>
+    var color = d3.scale.category10();
+    var xAxis = d3.svg.axis().scale(x);
+    var yAxis = d3.svg.axis().scale(y).orient("left");
 
-        <svg class="chart"></svg>
-        <script type="text/javascript"> //src = d3/d3.js?
+    svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("x", 20)
+            .attr("y", -margin)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text(labelY);
+    // x axis and label
+    svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis)
+            .append("text")
+            .attr("x", width + 20)
+            .attr("y", margin - 10)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .text(labelX);
+//function (d) { return color(d.c); }
+    svg.selectAll("circle")
+            .data(pokemon)
+            .enter()
+            .insert("circle")
+            .attr("cx", width / 2)
+            .attr("cy", height / 2)
+            .attr("opacity", function (d) {
+                return opacity(d.bmi);
+            })
+            .attr("r", function (d) {
+                return scale(d.bmi);
+            })
+            .style("fill", 'BLUE')//
 
-        d3.csv("Pokemon.csv", function (err, data) {
-            debugger;
-        });
+//                    .on('mouseover', function (d, i) {
+//                        fade(d.c, .1);
+//                    })
+//                    .on('mouseout', function (d, i) {
+//                        fadeOut();
+//                    })
+            .transition()
+            .delay(function (d, i) {
+                return x(d.id) - y(d.base_experience);
+            })
+            .duration(500)
+            .attr("cx", function (d) {
+                return x(d.id);
+            })
+            .attr("cy", function (d) {
+                return y(d.base_experience);
+            })
+            .ease("bounce");
 
-            //##############    1    ####################
-            //Setting the size of our canvas
-            var width = 780; 
-            var height = 460; 
+    function fade(c, opacity) {
+        svg.selectAll("circle")
+                .filter(function (d) {
+                    return d.c != c;
+                })
+                .transition()
+                .style("opacity", opacity);
+    }
 
-            //Setting our x and y axes
-            //RangeRoundBands returns the band width. Decimal value is the padding
-            //Range provides the band height (because of the inverted values).
-            var x = d3.scale.ordinal().rangeRoundBands([0, width], 0.1);
-            var y = d3.scale.linear().range([height, 0]);
+    function fadeOut() {
+        svg.selectAll("circle")
+                .transition()
+                .style("opacity", function (d) {
+                    opacity(d.bmi);
+                });
+    }
+});
 
-            //Creating our chart and grabbing attributes from ".chart" in header
-            var chart = d3.select(".chart")
-                .attr("width", width)
-                .attr("height", height);
-
-            //##############    2    ####################
-            //Pulling data from .json file 
-            d3.json("State-Example.json", function(error, data){
-
-                //Set our scale domains
-                //data.map creates a new array with the result of a function of every element in the array
-                x.domain(data.map(function(d) { return d.state; }));
-                y.domain([0, d3.max(data, function(d) { return d.value; })]);
-
-                var y_translate = 50;
-                /* Talk about this later */
-
-
-                //##############    3    ####################
-                //Grabbing data and binding it to the bars
-                //"G" groups all the svg elements together
-                var bar = chart.selectAll("g")
-                  .data(data)
-                  .enter()
-                  .append("g")
-                  .attr("transform", function(d) { return "translate("+ x(d.state) +",0)"; });
-				  // Translate arranges all the "g" elements on the X axis.
-				  // Without the translate, all the groups would be drawn at the same position
-
-                //Logging data to the console so we can make sure the data is bound
-                console.log(data);
-
-
-                //##############    4    ####################
-                //Generating rectangle SVG elements for our data
-                bar.append("rect")
-                  .attr("y", function(d) { return y(d.value); }) // Setting the Y position of individual bars based on the data
-                  .attr("height", function(d) { return height - y_translate - y(d.value); }) // At the chosen Y position, we're now specifying height.
-                  .attr("width", x.rangeBand())
-
-                  .style("fill", function(d){
-                    if(d.value > 30){
-                      return "#00CC33";
-                    }
-                    else{
-						  return "steelblue";
-                    }
-                  });
-				  // We're now specifying a different color for the bar based on the value
-
-
-                //##############    5    ####################
-                //Adding y labels to our bars
-                bar.append("text")
-                  .attr("x", x.rangeBand() / 2)
-                  .attr("y", function(d) { return y(d.value) + 3; })
-                  .attr("dy", ".75em")
-                  .text(function(d) { return d.value; });
-
-                //Adding x labels to our bars
-                bar.append("text")
-                  .attr("class", "xText")
-                  .attr("x", x.rangeBand() / 2)
-                  .attr("y", height - y_translate + 5)
-                  .attr("dy", ".75em")
-                  .text(function(d) { return d.state; });
-
-            });
-            
-
-        </script>
-    </body>
+</script>
+</body>
 </html>
