@@ -55,6 +55,10 @@
             font: 15px sans-serif;
         }
 
+        .chart circle {
+            cursor: pointer;
+        }
+
         .axis path,
         .axis line {
             fill: none;
@@ -70,26 +74,43 @@
 <body>
 
 <h1>POKEMON</h1>
+
 <div class="container">
     <div class="key">
         <p>Circle size = BMI (Body Mass Index: weight(kg) / height)</p>
         <br/>
         <ul>
-            <li style="margin: 6px">grass: <span style="background: #008A2E; padding: 2px; margin: 4px;">&nbsp;</span>#008A2E</li>
-            <li style="margin: 6px">fire: <span style="background: #FF0000; padding: 2px; margin: 4px;">&nbsp;</span>#FF0000</li>
-            <li style="margin: 6px">water: <span style="background: #0000FF; padding: 2px; margin: 4px;">&nbsp;</span>#0000FF</li>
-            <li style="margin: 6px">bug: <span style="background: #66FF33; padding: 2px; margin: 4px;">&nbsp;</span>#66FF33</li>
-            <li style="margin: 6px">flying: <span style="background: #FFFF99; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF99</li>
-            <li style="margin: 6px">normal: <span style="background: #999999; padding: 2px; margin: 4px;">&nbsp;</span>#999999</li>
-            <li style="margin: 6px">poison: <span style="background: #6600CC; padding: 2px; margin: 4px;">&nbsp;</span>#6600CC</li>
-            <li style="margin: 6px">electric: <span style="background:#FFFF00; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF00</li>
-            <li style="margin: 6px">ground: <span style="background: #C6A971; padding: 2px; margin: 4px;">&nbsp;</span>#C6A971</li>
-            <li style="margin: 6px">fairy: <span style="background: #FFCCFF; padding: 2px; margin: 4px;">&nbsp;</span>#FFCCFF</li>
-            <li style="margin: 6px">fighting: <span style="background: #CC3300; padding: 2px; margin: 4px;">&nbsp;</span>#CC3300</li>
-            <li style="margin: 6px">psychic: <span style="background: #6600FF; padding: 2px; margin: 4px;">&nbsp;</span>#6600FF</li>
-            <li style="margin: 6px">rock: <span style="background: #663300; padding: 2px; margin: 4px;">&nbsp;</span>#663300</li>
-            <li style="margin: 6px">ghost: <span style="background: #8A4ACC; padding: 2px; margin: 4px;">&nbsp;</span>#8A4ACC</li>
-            <li style="margin: 6px">dragon: <span style="background: #FF3399; padding: 2px; margin: 4px;">&nbsp;</span>#FF3399</li>
+            <li style="margin: 6px">grass: <span style="background: #008A2E; padding: 2px; margin: 4px;">&nbsp;</span>#008A2E
+            </li>
+            <li style="margin: 6px">fire: <span style="background: #FF0000; padding: 2px; margin: 4px;">&nbsp;</span>#FF0000
+            </li>
+            <li style="margin: 6px">water: <span style="background: #0000FF; padding: 2px; margin: 4px;">&nbsp;</span>#0000FF
+            </li>
+            <li style="margin: 6px">bug: <span style="background: #66FF33; padding: 2px; margin: 4px;">&nbsp;</span>#66FF33
+            </li>
+            <li style="margin: 6px">flying: <span style="background: #FFFF99; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF99
+            </li>
+            <li style="margin: 6px">normal: <span style="background: #999999; padding: 2px; margin: 4px;">&nbsp;</span>#999999
+            </li>
+            <li style="margin: 6px">poison: <span style="background: #6600CC; padding: 2px; margin: 4px;">&nbsp;</span>#6600CC
+            </li>
+            <li style="margin: 6px">electric: <span style="background:#FFFF00; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF00
+            </li>
+            <li style="margin: 6px">ground: <span style="background: #C6A971; padding: 2px; margin: 4px;">&nbsp;</span>#C6A971
+            </li>
+            <li style="margin: 6px">fairy: <span style="background: #FFCCFF; padding: 2px; margin: 4px;">&nbsp;</span>#FFCCFF
+            </li>
+            <li style="margin: 6px">fighting: <span
+                    style="background: #CC3300; padding: 2px; margin: 4px;">&nbsp;</span>#CC3300
+            </li>
+            <li style="margin: 6px">psychic: <span style="background: #6600FF; padding: 2px; margin: 4px;">&nbsp;</span>#6600FF
+            </li>
+            <li style="margin: 6px">rock: <span style="background: #663300; padding: 2px; margin: 4px;">&nbsp;</span>#663300
+            </li>
+            <li style="margin: 6px">ghost: <span style="background: #8A4ACC; padding: 2px; margin: 4px;">&nbsp;</span>#8A4ACC
+            </li>
+            <li style="margin: 6px">dragon: <span style="background: #FF3399; padding: 2px; margin: 4px;">&nbsp;</span>#FF3399
+            </li>
         </ul>
     </div>
     <div class="chart"></div>
@@ -216,8 +237,12 @@ d3.csv("Pokemon.csv", function (err, data) {
             .data(pokemon)
             .enter()
             .insert("circle")
-            .attr("cx", width / 2)
-            .attr("cy", height / 2)
+            .attr("cx", function (d) {
+                return x(d.id);
+            })
+            .attr("cy", function (d) {
+                return y(d.base_experience);
+            })
             .attr("opacity", function (d) {
                 return opacity(d.bmi);
             })
@@ -234,16 +259,32 @@ d3.csv("Pokemon.csv", function (err, data) {
                 fadeOut();
             })
             .transition()
-//            .delay(function (d, i) {
-//                return x(d.id) - y(d.base_experience);
-//            })
             .duration(500)
-            .attr("cx", function (d) {
+            .ease("bounce");
+    svg.selectAll("text")
+            .data(pokemon)
+            .enter()
+            .append("text")
+            .attr("x", function (d) {
                 return x(d.id);
             })
-            .attr("cy", function (d) {
+            .attr("y", function (d) {
                 return y(d.base_experience);
             })
+            .text(function (d) {
+                return d.identifier;
+            })
+            .attr("font-family", "sans-serif")
+            .attr("font-size", "20px")
+            .attr("fill", "black")
+            .attr("opacity", 0)
+            .on('mouseover', function (d, i) {
+                debugger;
+            })
+            .on('mouseout', function (d, i) {
+                fadeOut();
+            })            .transition()
+            .duration(500)
             .ease("bounce");
 
     function fade(c, opacity) {
@@ -262,6 +303,7 @@ d3.csv("Pokemon.csv", function (err, data) {
                     opacity(d.bmi);
                 });
     }
+
 });
 
 </script>
