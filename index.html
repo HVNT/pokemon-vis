@@ -23,8 +23,8 @@
 
         .chart {
             position: absolute;
-            top: 0;
-            left: 100px;
+            top: 30px;
+            left: 150px;
         }
 
         .chart rect {
@@ -69,9 +69,28 @@
 
 <body>
 
+<h1>POKEMON</h1>
 <div class="container">
     <div class="key">
-
+        <p>Circle size = BMI (Body Mass Index: weight(kg) / height)</p>
+        <br/>
+        <ul>
+            <li style="margin: 6px">grass: <span style="background: #008A2E; padding: 2px; margin: 4px;">&nbsp;</span>#008A2E</li>
+            <li style="margin: 6px">fire: <span style="background: #FF0000; padding: 2px; margin: 4px;">&nbsp;</span>#FF0000</li>
+            <li style="margin: 6px">water: <span style="background: #0000FF; padding: 2px; margin: 4px;">&nbsp;</span>#0000FF</li>
+            <li style="margin: 6px">bug: <span style="background: #66FF33; padding: 2px; margin: 4px;">&nbsp;</span>#66FF33</li>
+            <li style="margin: 6px">flying: <span style="background: #FFFF99; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF99</li>
+            <li style="margin: 6px">normal: <span style="background: #999999; padding: 2px; margin: 4px;">&nbsp;</span>#999999</li>
+            <li style="margin: 6px">poison: <span style="background: #6600CC; padding: 2px; margin: 4px;">&nbsp;</span>#6600CC</li>
+            <li style="margin: 6px">electric: <span style="background:#FFFF00; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF00</li>
+            <li style="margin: 6px">ground: <span style="background: #C6A971; padding: 2px; margin: 4px;">&nbsp;</span>#C6A971</li>
+            <li style="margin: 6px">fairy: <span style="background: #FFCCFF; padding: 2px; margin: 4px;">&nbsp;</span>#FFCCFF</li>
+            <li style="margin: 6px">fighting: <span style="background: #CC3300; padding: 2px; margin: 4px;">&nbsp;</span>#CC3300</li>
+            <li style="margin: 6px">psychic: <span style="background: #6600FF; padding: 2px; margin: 4px;">&nbsp;</span>#6600FF</li>
+            <li style="margin: 6px">rock: <span style="background: #663300; padding: 2px; margin: 4px;">&nbsp;</span>#663300</li>
+            <li style="margin: 6px">ghost: <span style="background: #8A4ACC; padding: 2px; margin: 4px;">&nbsp;</span>#8A4ACC</li>
+            <li style="margin: 6px">dragon: <span style="background: #FF3399; padding: 2px; margin: 4px;">&nbsp;</span>#FF3399</li>
+        </ul>
     </div>
     <div class="chart"></div>
 
@@ -80,8 +99,8 @@
 
 d3.csv("Pokemon.csv", function (err, data) {
     var pokemon = [],
-            height = 600,
-            width = 1000,
+            height = 500,
+            width = 800,
             margin = 40,
             labelX = 'Pokemon ID',
             labelY = 'Base Experience';
@@ -93,15 +112,33 @@ d3.csv("Pokemon.csv", function (err, data) {
             .append("g")
             .attr("transform", "translate(" + margin + "," + margin + ")");
 
+    var colorMap = {
+        grass: "#008A2E",
+        fire: "#FF0000",
+        water: "#0000FF",
+        bug: "#66FF33",
+        flying: "#FFFF99",
+        normal: "#999999",
+        poison: "#6600CC",
+        electric: "#FFFF00",
+        ground: "#C6A971",
+        fairy: "#FFCCFF",
+        fighting: "#CC3300",
+        psychic: "#6600FF",
+        rock: "#663300",
+        ghost: "#8A4ACC",
+        dragon: "#FF3399"
+    };
+
     function calcBMI(height, weight) {
         //assume weight in kg
         return (weight / (height * height));
     }
+
     function mapBMI() {
         if (pokemon && pokemon.length > 0) {
             for (var i = 0; i < pokemon.length; i++) {
                 pokemon[i].bmi = calcBMI(pokemon[i].height, pokemon[i].weight);
-//                pokemon[i].color = color[pokemon[i].type];
             }
         }
     }
@@ -112,6 +149,7 @@ d3.csv("Pokemon.csv", function (err, data) {
             pokemon[i].id = parseInt(pokemon[i].id, 10);
             pokemon[i].height = parseInt(pokemon[i].height, 10);
             pokemon[i].weight = parseInt(pokemon[i].weight, 10);
+            pokemon[i].color = colorMap[pokemon[i].type];
         }
         mapBMI();
         console.log(pokemon);
@@ -174,7 +212,6 @@ d3.csv("Pokemon.csv", function (err, data) {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text(labelX);
-//function (d) { return color(d.c); }
     svg.selectAll("circle")
             .data(pokemon)
             .enter()
@@ -187,14 +224,15 @@ d3.csv("Pokemon.csv", function (err, data) {
             .attr("r", function (d) {
                 return scale(d.bmi);
             })
-            .style("fill", 'BLUE')//
-
-//                    .on('mouseover', function (d, i) {
-//                        fade(d.c, .1);
-//                    })
-//                    .on('mouseout', function (d, i) {
-//                        fadeOut();
-//                    })
+            .style("fill", function (d) {
+                return color(d.color);
+            })
+            .on('mouseover', function (d, i) {
+                fade(d.color, .1);
+            })
+            .on('mouseout', function (d, i) {
+                fadeOut();
+            })
             .transition()
 //            .delay(function (d, i) {
 //                return x(d.id) - y(d.base_experience);
@@ -211,7 +249,7 @@ d3.csv("Pokemon.csv", function (err, data) {
     function fade(c, opacity) {
         svg.selectAll("circle")
                 .filter(function (d) {
-                    return d.c != c;
+                    return d.color != c;
                 })
                 .transition()
                 .style("opacity", opacity);
