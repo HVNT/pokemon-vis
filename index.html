@@ -27,25 +27,7 @@
             left: 150px;
         }
 
-        .chart rect {
-            fill: steelblue;
-        }
 
-        .chart rect:hover {
-            fill: turquoise;
-        }
-
-        .chart .rectM {
-            stroke: green;
-            stroke-width: 1;
-            fill: green;
-            fill-opacity: .2;
-        }
-
-        .chart .rectM:hover {
-            fill: green;
-            fill-opacity: .5;
-        }
 
         .chart text {
             font: 10px sans-serif;
@@ -208,7 +190,7 @@ d3.csv("Pokemon.csv", function (err, data) {
             })])
             .range([1, .5]);
 
-    var color = d3.scale.category10();
+//    var color = d3.scale.category10();
     var xAxis = d3.svg.axis().scale(x);
     var yAxis = d3.svg.axis().scale(y).orient("left");
 
@@ -250,13 +232,16 @@ d3.csv("Pokemon.csv", function (err, data) {
                 return scale(d.bmi);
             })
             .style("fill", function (d) {
-                return color(d.color);
+                return d.color;
             })
             .on('mouseover', function (d, i) {
-                fade(d.color, .1);
+                fadeCircle(d.color, .1);
+                fadeInText(d, .8);
+
             })
             .on('mouseout', function (d, i) {
-                fadeOut();
+                fadeOutCircle();
+                fadeOutText(d, 0);
             })
             .transition()
             .duration(500)
@@ -272,22 +257,22 @@ d3.csv("Pokemon.csv", function (err, data) {
                 return y(d.base_experience);
             })
             .text(function (d) {
-                return d.identifier;
+                return d.identifier + ' | bmi: ' + d3.round(d.bmi)  + ' | type: ' + d.type;
             })
             .attr("font-family", "sans-serif")
             .attr("font-size", "20px")
             .attr("fill", "black")
-            .attr("opacity", 0)
+            .attr("display", "none")
             .on('mouseover', function (d, i) {
-                debugger;
+                d3.select(this)
             })
             .on('mouseout', function (d, i) {
-                fadeOut();
-            })            .transition()
+
+            }).transition()
             .duration(500)
             .ease("bounce");
 
-    function fade(c, opacity) {
+    function fadeCircle (c, opacity) {
         svg.selectAll("circle")
                 .filter(function (d) {
                     return d.color != c;
@@ -296,13 +281,32 @@ d3.csv("Pokemon.csv", function (err, data) {
                 .style("opacity", opacity);
     }
 
-    function fadeOut() {
+    function fadeOutCircle () {
         svg.selectAll("circle")
                 .transition()
                 .style("opacity", function (d) {
                     opacity(d.bmi);
                 });
     }
+
+    function fadeInText (pokemon, opacity) {
+        svg.selectAll("text")
+                .filter(function (d) {
+                    return pokemon.identifier == d.identifier;
+                })
+                .transition()
+                .style("display", "inline");
+    }
+
+    function fadeOutText (pokemon, opacity) {
+        svg.selectAll("text")
+                .filter(function (d) {
+                    return pokemon.identifier == d.identifier;
+                })
+                .transition()
+                .style("display", "none");
+    }
+
 
 });
 
