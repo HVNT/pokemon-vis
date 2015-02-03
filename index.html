@@ -8,6 +8,24 @@
     <script type="text/javascript" src="d3/d3.js"></script>
 
     <style>
+        .container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .key {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .chart {
+            position: absolute;
+            top: 0;
+            left: 100px;
+        }
 
         .chart rect {
             fill: steelblue;
@@ -51,7 +69,13 @@
 
 <body>
 
-<div class="chart"></div>
+<div class="container">
+    <div class="key">
+
+    </div>
+    <div class="chart"></div>
+
+</div>
 <script type="text/javascript"> //src = d3/d3.js?
 
 d3.csv("Pokemon.csv", function (err, data) {
@@ -77,6 +101,7 @@ d3.csv("Pokemon.csv", function (err, data) {
         if (pokemon && pokemon.length > 0) {
             for (var i = 0; i < pokemon.length; i++) {
                 pokemon[i].bmi = calcBMI(pokemon[i].height, pokemon[i].weight);
+//                pokemon[i].color = color[pokemon[i].type];
             }
         }
     }
@@ -84,6 +109,7 @@ d3.csv("Pokemon.csv", function (err, data) {
     (function init() {
         pokemon = data;
         for (var i = 0; i < pokemon.length; i++) {
+            pokemon[i].id = parseInt(pokemon[i].id, 10);
             pokemon[i].height = parseInt(pokemon[i].height, 10);
             pokemon[i].weight = parseInt(pokemon[i].weight, 10);
         }
@@ -101,9 +127,9 @@ d3.csv("Pokemon.csv", function (err, data) {
 
     var y = d3.scale.linear()
             .domain([d3.min(pokemon, function (d) {
-                return d.base_experience;
+                return 0;
             }), d3.max(pokemon, function (d) {
-                return d.base_experience;
+                return d.base_experience * 1.1;
             })])
             .range([height, 0]);
 
@@ -170,9 +196,9 @@ d3.csv("Pokemon.csv", function (err, data) {
 //                        fadeOut();
 //                    })
             .transition()
-            .delay(function (d, i) {
-                return x(d.id) - y(d.base_experience);
-            })
+//            .delay(function (d, i) {
+//                return x(d.id) - y(d.base_experience);
+//            })
             .duration(500)
             .attr("cx", function (d) {
                 return x(d.id);
