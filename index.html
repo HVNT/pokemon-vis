@@ -18,7 +18,7 @@
 
         .key {
             position: absolute;
-            top: 50px;
+            top: 75px;
             left: 0;
         }
 
@@ -100,13 +100,15 @@
             </li>
         </ul>
     </div>
-    <p>Change Circle Radius Encoding: </p>
-    <ul class="circle-interactions" style="padding-left: 22px;">
-        <!--init bmi radio btn to checked-->
-        <input type="radio" name="circle-interaction" checked="checked" id="checkbox--bmi"/>BMI
-        <input type="radio" name="circle-interaction" id="checkbox--height"/>Height
-        <input type="radio" name="circle-interaction" id="checkbox--weight"/>Weight
-    </ul>
+    <div class="circle-interactions">
+        <p>Change Circle Radius Encoding: </p>
+        <ul style="padding-left: 22px;">
+            <!--init bmi radio btn to checked-->
+            <input type="radio" name="circle-interaction" checked="checked" id="checkbox--bmi"/>BMI
+            <input type="radio" name="circle-interaction" id="checkbox--height"/>Height
+            <input type="radio" name="circle-interaction" id="checkbox--weight"/>Weight
+        </ul>
+    </div>
     <div class="chart"></div>
 
 </div>
@@ -181,6 +183,8 @@ $(document).ready(function() {
         function radiusBMI () {
             svg.selectAll("circle")
                     .transition()
+                    .duration(500)
+                    .delay(50)
                     .attr("r", function (d) {
                         //r will be a function that changes values in the interval [0,1] to values in the interval [5,1000]
                         return scale(d.bmi);
@@ -190,6 +194,8 @@ $(document).ready(function() {
         function radiusHeight () {
             svg.selectAll("circle")
                     .transition()
+                    .duration(500)
+                    .delay(50)
                     .attr("r", function (d) {
                         //r will be a function that changes values in the interval [0,1] to values in the interval [5,1000]
                         return scale(d.height / 5); //divided by 5 for scale
@@ -199,6 +205,8 @@ $(document).ready(function() {
         function radiusWeight () {
             svg.selectAll("circle")
                     .transition()
+                    .duration(500)
+                    .delay(50)
                     .attr("r", function (d) {
                         //r will be a function that changes values in the interval [0,1] to values in the interval [5,1000]
                         return scale(d.weight / 100); //divided by 100 for scale
@@ -354,6 +362,7 @@ $(document).ready(function() {
         //hide all until hovering
             .transition()
             .duration(750)
+            .delay(100)
             .ease("bounce");
 
         function fadeCircle (c,opacity) {
