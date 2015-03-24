@@ -18,19 +18,20 @@
 
         .key {
             position: absolute;
-            top: 0;
+            top: 50px;
             left: 0;
         }
 
         .chart {
             position: absolute;
             top: 30px;
-            left: 150px;
+            left: 200px;
+            padding-right: 100px;
         }
 
         .circle-interactions {
             position: absolute;
-            top: 450px;
+            top: 0;
             left: 0;
         }
 
@@ -65,7 +66,6 @@
 <div class="container">
     <div class="key">
         <p>Circle size = BMI (Body Mass Index: weight(kg) / height)</p>
-        <br/>
         <ul>
             <li style="margin: 8px">grass: <span style="background: #008A2E; padding: 2px; margin: 4px;">&nbsp;</span>#008A2E
             </li>
@@ -192,6 +192,8 @@ $(document).ready(function() {
                 height = 500,
                 width = 800,
                 margin = 40,
+                xMargin = 100,
+                yMargin = 200,
                 labelX = 'Pokemon ID',
                 labelY = 'Base Experience';
         var svg = d3.select('.chart')
