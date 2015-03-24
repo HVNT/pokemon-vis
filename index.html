@@ -6,6 +6,7 @@
     <meta charset="utf-8">
     <title>D3 Test</title>
     <script type="text/javascript" src="d3/d3.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 
     <style>
         .container {
@@ -27,7 +28,11 @@
             left: 150px;
         }
 
-
+        .circle-interactions {
+            position: absolute;
+            top: 450px;
+            left: 0;
+        }
 
         .chart text {
             font: 10px sans-serif;
@@ -62,152 +67,194 @@
         <p>Circle size = BMI (Body Mass Index: weight(kg) / height)</p>
         <br/>
         <ul>
-            <li style="margin: 6px">grass: <span style="background: #008A2E; padding: 2px; margin: 4px;">&nbsp;</span>#008A2E
+            <li style="margin: 8px">grass: <span style="background: #008A2E; padding: 2px; margin: 4px;">&nbsp;</span>#008A2E
             </li>
-            <li style="margin: 6px">fire: <span style="background: #FF0000; padding: 2px; margin: 4px;">&nbsp;</span>#FF0000
+            <li style="margin: 8px">fire: <span style="background: #FF0000; padding: 2px; margin: 4px;">&nbsp;</span>#FF0000
             </li>
-            <li style="margin: 6px">water: <span style="background: #0000FF; padding: 2px; margin: 4px;">&nbsp;</span>#0000FF
+            <li style="margin: 8px">water: <span style="background: #0000FF; padding: 2px; margin: 4px;">&nbsp;</span>#0000FF
             </li>
-            <li style="margin: 6px">bug: <span style="background: #66FF33; padding: 2px; margin: 4px;">&nbsp;</span>#66FF33
+            <li style="margin: 8px">bug: <span style="background: #66FF33; padding: 2px; margin: 4px;">&nbsp;</span>#66FF33
             </li>
-            <li style="margin: 6px">flying: <span style="background: #FFFF99; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF99
+            <li style="margin: 8px">flying: <span style="background: #FFFF99; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF99
             </li>
-            <li style="margin: 6px">normal: <span style="background: #999999; padding: 2px; margin: 4px;">&nbsp;</span>#999999
+            <li style="margin: 8px">normal: <span style="background: #999999; padding: 2px; margin: 4px;">&nbsp;</span>#999999
             </li>
-            <li style="margin: 6px">poison: <span style="background: #6600CC; padding: 2px; margin: 4px;">&nbsp;</span>#6600CC
+            <li style="margin: 8px">poison: <span style="background: #6600CC; padding: 2px; margin: 4px;">&nbsp;</span>#6600CC
             </li>
-            <li style="margin: 6px">electric: <span style="background:#FFFF00; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF00
+            <li style="margin: 8px">electric: <span style="background:#FFFF00; padding: 2px; margin: 4px;">&nbsp;</span>#FFFF00
             </li>
-            <li style="margin: 6px">ground: <span style="background: #C6A971; padding: 2px; margin: 4px;">&nbsp;</span>#C6A971
+            <li style="margin: 8px">ground: <span style="background: #C6A971; padding: 2px; margin: 4px;">&nbsp;</span>#C6A971
             </li>
-            <li style="margin: 6px">fairy: <span style="background: #FFCCFF; padding: 2px; margin: 4px;">&nbsp;</span>#FFCCFF
+            <li style="margin: 8px">fairy: <span style="background: #FFCCFF; padding: 2px; margin: 4px;">&nbsp;</span>#FFCCFF
             </li>
-            <li style="margin: 6px">fighting: <span
+            <li style="margin: 8px">fighting: <span
                     style="background: #CC3300; padding: 2px; margin: 4px;">&nbsp;</span>#CC3300
             </li>
-            <li style="margin: 6px">psychic: <span style="background: #6600FF; padding: 2px; margin: 4px;">&nbsp;</span>#6600FF
+            <li style="margin: 8px">psychic: <span style="background: #6600FF; padding: 2px; margin: 4px;">&nbsp;</span>#6600FF
             </li>
-            <li style="margin: 6px">rock: <span style="background: #663300; padding: 2px; margin: 4px;">&nbsp;</span>#663300
+            <li style="margin: 8px">rock: <span style="background: #663300; padding: 2px; margin: 4px;">&nbsp;</span>#663300
             </li>
-            <li style="margin: 6px">ghost: <span style="background: #8A4ACC; padding: 2px; margin: 4px;">&nbsp;</span>#8A4ACC
+            <li style="margin: 8px">ghost: <span style="background: #8A4ACC; padding: 2px; margin: 4px;">&nbsp;</span>#8A4ACC
             </li>
-            <li style="margin: 6px">dragon: <span style="background: #FF3399; padding: 2px; margin: 4px;">&nbsp;</span>#FF3399
+            <li style="margin: 8px">dragon: <span style="background: #FF3399; padding: 2px; margin: 4px;">&nbsp;</span>#FF3399
             </li>
         </ul>
     </div>
+    <ul class="circle-interactions" style="padding-left: 22px;">
+        <!--init bmi radio btn to checked-->
+        <input type="radio" name="circle-interaction" checked="checked" id="checkbox--bmi"/>BMI
+        <input type="radio" name="circle-interaction" id="checkbox--height"/>Height
+        <input type="radio" name="circle-interaction" id="checkbox--weight"/>Weight
+    </ul>
     <div class="chart"></div>
 
 </div>
 <script type="text/javascript"> //src = d3/d3.js?
 
-var colorMap = {
-    grass: "#008A2E",
-    fire: "#FF0000",
-    water: "#0000FF",
-    bug: "#66FF33",
-    flying: "#FFFF99",
-    normal: "#999999",
-    poison: "#6600CC",
-    electric: "#FFFF00",
-    ground: "#C6A971",
-    fairy: "#FFCCFF",
-    fighting: "#CC3300",
-    psychic: "#6600FF",
-    rock: "#663300",
-    ghost: "#8A4ACC",
-    dragon: "#FF3399"
-};
+$(document).ready(function() {
 
-function Pokemon (data) {
-    this.rawData = data || {};
+    var whichRadioBtn = null,
+        whichRadioBtnID = '';
+    $("input[name='circle-interaction']").change(function(radioBtn){
+        radioBtn = radioBtn || {};
+        whichRadioBtn = radioBtn.target || {}; //could potentially get undefined err here
+        whichRadioBtnID = whichRadioBtn.id;
 
-    this.id = parseInt(data.id) || null;
-    this.species_id = parseInt(data.species_id);
+        switch (whichRadioBtnID) {
+            case('checkbox--bmi'):
+                radiusBMI();
+                break;
+            case('checkbox--height'):
+                radiusHeight();
+                break;
+            case('checkbox--weight'):
+                radiusWeight();
+                break;
+            default:
+                $('#checkbox--bmi').attr('checked', true);
+                break;
+        }
+    });
 
-    this.name = data.identifier || '';
-    this.type = data.type;
-    this.color = data.color || colorMap[data.type];
-    this.base_experience = data.base_experience;
-    this.is_default = !!parseInt(data.is_default);
-    this.order = parseInt(data.order);
-
-    this.height = parseInt(data.height);
-    this.weight = parseInt(data.weight);
-    this.bmi = data.bmi || null;
-
-    return this;
-}
-
-d3.csv("Pokemon.csv", function (err, data) {
-
-    var pokemon = [],
-            height = 500,
-            width = 800,
-            margin = 40,
-            labelX = 'Pokemon ID',
-            labelY = 'Base Experience';
-    var svg = d3.select('.chart')
-            .append('svg')
-            .attr('class', 'chart')
-            .attr("width", width + margin + margin)
-            .attr("height", height + margin + margin)
-            .append("g")
-            .attr("transform", "translate(" + margin + "," + margin + ")");
-
-    function calcBMI(height, weight) {
-        //assume weight in kg
-        return (weight / (height * height));
+    function radiusBMI () {
+        debugger;
     }
 
-    function mapBMI() {
-        if (pokemon && pokemon.length > 0) {
-            for (var i = 0; i < pokemon.length; i++) {
-                pokemon[i].bmi = calcBMI(pokemon[i].height, pokemon[i].weight);
-            }
-        }
+    function radiusHeight () {
+        debugger;
     }
 
-    (function init() {
-        pokemon = [];
+    function radiusWeight () {
+        debugger;
+    }
 
-        if (data && data.length > 0) {
-            for (var i = 0; i < data.length; i++) {
-                pokemon.push(new Pokemon(data[i]));
-            }
-            mapBMI();
+    var colorMap = {
+        grass: "#008A2E",
+        fire: "#FF0000",
+        water: "#0000FF",
+        bug: "#66FF33",
+        flying: "#FFFF99",
+        normal: "#999999",
+        poison: "#6600CC",
+        electric: "#FFFF00",
+        ground: "#C6A971",
+        fairy: "#FFCCFF",
+        fighting: "#CC3300",
+        psychic: "#6600FF",
+        rock: "#663300",
+        ghost: "#8A4ACC",
+        dragon: "#FF3399"
+    };
+
+    function Pokemon(data) {
+        this.rawData = data || {};
+
+        this.id = parseInt(data.id) || null;
+        this.species_id = parseInt(data.species_id);
+
+        this.name = data.identifier || '';
+        this.type = data.type;
+        this.color = data.color || colorMap[data.type];
+        this.base_experience = data.base_experience;
+        this.is_default = !!parseInt(data.is_default);
+        this.order = parseInt(data.order);
+
+        this.height = parseInt(data.height);
+        this.weight = parseInt(data.weight);
+        this.bmi = data.bmi || null;
+
+        return this;
+    }
+
+    d3.csv("Pokemon.csv", function (err, data) {
+
+        var pokemon = [],
+                height = 500,
+                width = 800,
+                margin = 40,
+                labelX = 'Pokemon ID',
+                labelY = 'Base Experience';
+        var svg = d3.select('.chart')
+                .append('svg')
+                .attr('class', 'chart')
+                .attr("width", width + margin + margin)
+                .attr("height", height + margin + margin)
+                .append("g")
+                .attr("transform", "translate(" + margin + "," + margin + ")");
+
+        function calcBMI(height, weight) {
+            //assume weight in kg
+            return (weight / (height * height));
         }
-    })();
 
-    var x = d3.scale.linear()
-            .domain([0, 155])
-            .range([0, width]);
+        function mapBMI() {
+            if (pokemon && pokemon.length > 0) {
+                for (var i = 0; i < pokemon.length; i++) {
+                    pokemon[i].bmi = calcBMI(pokemon[i].height, pokemon[i].weight);
+                }
+            }
+        }
 
-    var y = d3.scale.linear()
-            .domain([0, 410])
-            .range([height, 0]);
+        (function init() {
+            pokemon = [];
 
-    var scale = d3.scale.sqrt()
-            .domain([0, d3.max(pokemon, function (d) {
-                return d.bmi;
-            })])
-            .range([0, 25]);
+            if (data && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    pokemon.push(new Pokemon(data[i]));
+                }
+                mapBMI();
+            }
+        })();
 
-    var opacity = d3.scale.sqrt()
-            .domain([d3.min(pokemon, function (d) {
-                return d.bmi;
-            }), d3.max(pokemon, function (d) {
-                return d.bmi;
-            })])
-            .range([1, .5]);
+        var x = d3.scale.linear()
+                .domain([0, 155])
+                .range([0, width]);
+
+        var y = d3.scale.linear()
+                .domain([0, 410])
+                .range([height, 0]);
+
+        var scale = d3.scale.sqrt()
+                .domain([0, d3.max(pokemon, function (d) {
+                    return d.bmi;
+                })])
+                .range([0, 25]);
+
+        var opacity = d3.scale.sqrt()
+                .domain([d3.min(pokemon, function (d) {
+                    return d.bmi;
+                }), d3.max(pokemon, function (d) {
+                    return d.bmi;
+                })])
+                .range([1, .5]);
 
 //    var color = d3.scale.category10();
-    var xAxis = d3.svg.axis().scale(x);
-    var yAxis = d3.svg.axis().scale(y).orient("left");
-
-    /* svg.append('g') appends a 'g' element to the SVG.
+        var xAxis = d3.svg.axis().scale(x);
+        var yAxis = d3.svg.axis().scale(y).orient("left");
+        /* svg.append('g') appends a 'g' element to the SVG.
         g element is used to group SVG shapes together,
         so it's not d3 specific. */
-    svg.append("g")
+        svg.append("g")
             .attr("class", "y axis")
             .call(yAxis) //d3's call() function takes a selection as input and hands that selection off to any function
             .append("text")
@@ -233,7 +280,8 @@ d3.csv("Pokemon.csv", function (err, data) {
             .data(pokemon)
             .enter()
             .insert("circle")
-            .attr("cx", function (d) { //binds x-axis to pokemon's id
+            .attr("cx", function (d) {
+                //binds x-axis to pokemon's id
                 return x(d.id);
             })
             .attr("cy", function (d) { //binds y-axis to pokemon's base_experience
@@ -241,18 +289,22 @@ d3.csv("Pokemon.csv", function (err, data) {
             })
             .attr("opacity", function (d) { //binds size of pokemon node to pokemon's bmi
                 return opacity(d.bmi);
-            })
-            .attr("r", function (d) { //r will be a function that changes values in the interval [0,1] to values in the interval [5,1000]
+            }
+    )
+            .attr("r", function (d) {
+                //r will be a function that changes values in the interval [0,1] to values in the interval [5,1000]
                 return scale(d.bmi);
             })
-            .style("fill", function (d) { //fills all circles with specified color
+            .style("fill", function (d) {
+                //fills all circles with specified color
                 return d.color;
             })
             .on('mouseover', function (d) {
                 fadeCircle(d.color, .1);
                 fadeInText(d);
             })
-            .on('mouseout', function (d) {
+            .on('mouseout', function
+                    (d) {
                 fadeOutCircle();
                 fadeOutText(d);
             })
@@ -263,36 +315,40 @@ d3.csv("Pokemon.csv", function (err, data) {
     svg.selectAll("text")
             .data(pokemon)
             .enter()
-            .append("text")
-            .text(function (d) {
-                debugger;
-                return d.name + ' | bmi: ' + d3.round(d.bmi)  + ' | type: ' + d.type;
+            .insert("text")
+            .text(
+            function (d) {
+                return d.name + ' | bmi: ' + d3.round(d.
+                        bmi)  + ' | type: ' + d.type;
             })
-            .attr("x", function (d) {
+            .attr("x", function(d) {
                 return x(d.id);
             })
-            .attr("y", function (d) {
+            .attr("y",
+            function (d) {
                 return y(d.base_experience);
             })
-            .attr("font-family", "sans-serif")
+            .attr("font-family",
+            "sans-serif")
             .attr("font-size", "20px")
-            .attr("fill", "black")
-            .attr("display", "none") //hide all until hovering
+            .attr("fill","black")
+            .attr("display", "none")
+        //hide all until hovering
             .transition()
             .duration(500)
             .ease("bounce");
 
-    function fadeCircle (c, opacity) {
-        svg.selectAll("circle")
+        function fadeCircle (c,opacity) {
+            svg.selectAll("circle")
                 .filter(function (d) {
                     return d.color != c;
                 })
                 .transition()
                 .style("opacity", opacity);
-    }
+        }
 
-    function fadeOutCircle () {
-        svg.selectAll("circle")
+        function fadeOutCircle () {
+            svg.selectAll("circle")
                 .transition()
                 .style("opacity", function (d) {
                     opacity(d.bmi);
@@ -316,9 +372,8 @@ d3.csv("Pokemon.csv", function (err, data) {
                 .transition()
                 .style("display", "none");
     }
-
 });
-
+});
 </script>
 </body>
 </html>
