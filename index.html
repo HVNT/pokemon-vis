@@ -29,6 +29,12 @@
             padding-right: 100px;
         }
 
+        /*.bar-chart {*/
+            /*position: absolute;*/
+            /*top: 500px;*/
+            /*left: 0;*/
+        /*}*/
+
         .circle-interactions {
             position: absolute;
             top: 0;
@@ -51,7 +57,7 @@
         }
 
         .pokemon-physical-bar--value {
-            display: hidden;
+            display: none;
         }
 
         .chart text {
@@ -142,7 +148,7 @@
 
 $(document).ready(function() {
     var whichRadioBtn = null,
-            whichRadioBtnID = '';
+            whichRadioBtnID = 'checkbox--bmi';
 
     var colorMap = {
         grass: "#008A2E",
@@ -411,6 +417,7 @@ $(document).ready(function() {
         svg.selectAll("text")
                 .filter(function (d) {
                     if (pokemon.id == d.id) {
+//                        repaintBarGraph(pokemon.type);
                         setPokemonBarWidth(pokemon);
                     }
                     return pokemon.id == d.id;
@@ -437,7 +444,76 @@ $(document).ready(function() {
         $("#pokemon-physical-bar--height").width(pokemon.height);
         $("#pokemon-physical-bar--weight").width(pokemon.weight);
     }
-});
+
+    var w = 300,
+        h = 400,
+        filteredPokemon = [];
+
+    var xScale = d3.scale.ordinal()
+            .domain(d3.range(filteredPokemon.length))
+            .rangeRoundBands([0, w], 0.05);
+
+    var yScale = d3.scale.linear()
+            .domain([0, d3.max(pokemon, function(d) {
+                switch (whichRadioBtnID) {
+                    case('checkbox--bmi'):
+                        return d.bmi;
+                    case('checkbox--height'):
+                        return d.height;
+                    case('checkbox--weight'):
+                        return d.weight;
+                    default:
+                        return d.bmi;
+                }
+            })])
+            .range([0, h]);
+
+//        var barSvg = d3.select(".bar-chart")
+//                .append("svg")
+//                .attr("width", w)
+//                .attr("height", h);
+//
+//        function repaintBarGraph(pokemonType) {
+//            filteredPokemon = filterPokemonGivenType(pokemonType);
+//
+//            if (filteredPokemon && filteredPokemon.length > 0) {
+//                barSvg.selectAll("rect")
+//                        .remove()
+//                        .data(filteredPokemon)
+//                        .enter()
+//                        .append("rect")
+//                        .attr("x", function(d) {
+//                            return filteredPokemon.indexOf(d) * 5;
+//                        })
+//                        .attr("y", 0)
+//                        .attr("width", 5)
+//                        .attr("height", function(d) {
+//                            switch (whichRadioBtnID) {
+//                                case('checkbox--bmi'):
+//                                    return d.bmi * 15;
+//                                case('checkbox--height'):
+//                                    return d.height;
+//                                case('checkbox--weight'):
+//                                    return d.weight;
+//                                default:
+//                                    return d.bmi * 15;
+//                            }
+//                        })
+//                        .attr("fill", function(d) {
+//                            return d.color;
+//                        });
+//            }
+//        }
+//
+//        function filterPokemonGivenType(type) {
+//            var filteredPokemon = [];
+//            filteredPokemon = jQuery.grep(pokemon, function(pokemon) {
+//                return pokemon.type === type;
+//            });
+//            return filteredPokemon;
+//        }
+
+    });
 });
 </script>
 </body>
