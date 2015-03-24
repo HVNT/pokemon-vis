@@ -35,6 +35,25 @@
             left: 0;
         }
 
+        .pokemon-physical {
+            position: absolute;
+            top: 475px;
+            left: 0;
+        }
+
+        .pokemon-physical-bar {
+            position: relative;
+            display: block;
+            height: 20px;
+            width: 0;
+            background: BLUE;
+            margin-left: 16px;
+        }
+
+        .pokemon-physical-bar--value {
+            display: hidden;
+        }
+
         .chart text {
             font: 10px sans-serif;
         }
@@ -60,8 +79,6 @@
 
 
 <body>
-
-<h1>POKEMON INFOVIS</h1>
 
 <div class="container">
     <div class="key">
@@ -106,8 +123,17 @@
             <!--init bmi radio btn to checked-->
             <input type="radio" name="circle-interaction" checked="checked" id="checkbox--bmi"/>BMI
             <input type="radio" name="circle-interaction" id="checkbox--height"/>Height
-            <input type="radio" name="circle-interaction" id="checkbox--weight"/>Weight
+            <input type="radio" name="circle-interaction" id="checkbox--weight"/>Weight (kg)
         </ul>
+    </div>
+    <div class="pokemon-physical">
+        <h4 id="pokemon-physical-bar--title">* Hover over a Pokemon *</h4>
+        <p>BMI: <span class="pokemon-physical-bar--value" id="pokemon-physical-bar--bmi-value"></span></p>
+        <div id="pokemon-physical-bar--bmi" class="pokemon-physical-bar"></div>
+        <p>Height: <span class="pokemon-physical-bar--value" id="pokemon-physical-bar--height-value"></span></p>
+        <div id="pokemon-physical-bar--height" class="pokemon-physical-bar"></div>
+        <p>Weight: <span class="pokemon-physical-bar--value" id="pokemon-physical-bar--weight-value"></span></p>
+        <div id="pokemon-physical-bar--weight" class="pokemon-physical-bar"></div>
     </div>
     <div class="chart"></div>
 
@@ -385,6 +411,9 @@ $(document).ready(function() {
     function fadeInText (pokemon) {
         svg.selectAll("text")
                 .filter(function (d) {
+                    if (pokemon.id == d.id) {
+                        setPokemonBarWidth(pokemon);
+                    }
                     return pokemon.id == d.id;
                 })
                 .transition()
@@ -398,6 +427,16 @@ $(document).ready(function() {
                 })
                 .transition()
                 .style("display", "none");
+    }
+
+    function setPokemonBarWidth (pokemon) {
+        $("#pokemon-physical-bar--title").text(pokemon.name).show();
+        $("#pokemon-physical-bar--bmi-value").text(pokemon.bmi).show();
+        $("#pokemon-physical-bar--height-value").text(pokemon.height).show();
+        $("#pokemon-physical-bar--weight-value").text(pokemon.weight).show();
+        $("#pokemon-physical-bar--bmi").width(pokemon.bmi);
+        $("#pokemon-physical-bar--height").width(pokemon.height);
+        $("#pokemon-physical-bar--weight").width(pokemon.weight);
     }
 });
 });
