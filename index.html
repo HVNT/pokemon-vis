@@ -370,8 +370,7 @@ $(document).ready(function() {
             .insert("text")
             .text(
             function (d) {
-                return d.name + ' | bmi: ' + d3.round(d.
-                        bmi)  + ' | type: ' + d.type;
+                return d.name + ' | type: ' + d.type;
             })
             .attr("x", function(d) {
                 return x(d.id);
