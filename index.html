@@ -100,7 +100,46 @@
 </div>
 <script type="text/javascript"> //src = d3/d3.js?
 
+var colorMap = {
+    grass: "#008A2E",
+    fire: "#FF0000",
+    water: "#0000FF",
+    bug: "#66FF33",
+    flying: "#FFFF99",
+    normal: "#999999",
+    poison: "#6600CC",
+    electric: "#FFFF00",
+    ground: "#C6A971",
+    fairy: "#FFCCFF",
+    fighting: "#CC3300",
+    psychic: "#6600FF",
+    rock: "#663300",
+    ghost: "#8A4ACC",
+    dragon: "#FF3399"
+};
+
+function Pokemon (data) {
+    this.rawData = data || {};
+
+    this.id = parseInt(data.id) || null;
+    this.species_id = parseInt(data.species_id);
+
+    this.name = data.identifier || '';
+    this.type = data.type;
+    this.color = data.color || colorMap[data.type];
+    this.base_experience = data.base_experience;
+    this.is_default = !!parseInt(data.is_default);
+    this.order = parseInt(data.order);
+
+    this.height = parseInt(data.height);
+    this.weight = parseInt(data.weight);
+    this.bmi = data.bmi || null;
+
+    return this;
+}
+
 d3.csv("Pokemon.csv", function (err, data) {
+
     var pokemon = [],
             height = 500,
             width = 800,
@@ -114,24 +153,6 @@ d3.csv("Pokemon.csv", function (err, data) {
             .attr("height", height + margin + margin)
             .append("g")
             .attr("transform", "translate(" + margin + "," + margin + ")");
-
-    var colorMap = {
-        grass: "#008A2E",
-        fire: "#FF0000",
-        water: "#0000FF",
-        bug: "#66FF33",
-        flying: "#FFFF99",
-        normal: "#999999",
-        poison: "#6600CC",
-        electric: "#FFFF00",
-        ground: "#C6A971",
-        fairy: "#FFCCFF",
-        fighting: "#CC3300",
-        psychic: "#6600FF",
-        rock: "#663300",
-        ghost: "#8A4ACC",
-        dragon: "#FF3399"
-    };
 
     function calcBMI(height, weight) {
         //assume weight in kg
@@ -147,14 +168,14 @@ d3.csv("Pokemon.csv", function (err, data) {
     }
 
     (function init() {
-        pokemon = data;
-        for (var i = 0; i < pokemon.length; i++) {
-            pokemon[i].id = parseInt(pokemon[i].id, 10);
-            pokemon[i].height = parseInt(pokemon[i].height, 10);
-            pokemon[i].weight = parseInt(pokemon[i].weight, 10);
-            pokemon[i].color = colorMap[pokemon[i].type];
+        pokemon = [];
+
+        if (data && data.length > 0) {
+            for (var i = 0; i < data.length; i++) {
+                pokemon.push(new Pokemon(data[i]));
+            }
+            mapBMI();
         }
-        mapBMI();
     })();
 
     var x = d3.scale.linear()
@@ -183,9 +204,12 @@ d3.csv("Pokemon.csv", function (err, data) {
     var xAxis = d3.svg.axis().scale(x);
     var yAxis = d3.svg.axis().scale(y).orient("left");
 
+    /* svg.append('g') appends a 'g' element to the SVG.
+        g element is used to group SVG shapes together,
+        so it's not d3 specific. */
     svg.append("g")
             .attr("class", "y axis")
-            .call(yAxis)
+            .call(yAxis) //d3's call() function takes a selection as input and hands that selection off to any function
             .append("text")
             .attr("transform", "rotate(-90)")
             .attr("x", 20)
@@ -209,19 +233,19 @@ d3.csv("Pokemon.csv", function (err, data) {
             .data(pokemon)
             .enter()
             .insert("circle")
-            .attr("cx", function (d) {
+            .attr("cx", function (d) { //binds x-axis to pokemon's id
                 return x(d.id);
             })
-            .attr("cy", function (d) {
+            .attr("cy", function (d) { //binds y-axis to pokemon's base_experience
                 return y(d.base_experience);
             })
-            .attr("opacity", function (d) {
+            .attr("opacity", function (d) { //binds size of pokemon node to pokemon's bmi
                 return opacity(d.bmi);
             })
-            .attr("r", function (d) {
+            .attr("r", function (d) { //r will be a function that changes values in the interval [0,1] to values in the interval [5,1000]
                 return scale(d.bmi);
             })
-            .style("fill", function (d) {
+            .style("fill", function (d) { //fills all circles with specified color
                 return d.color;
             })
             .on('mouseover', function (d) {
@@ -241,7 +265,8 @@ d3.csv("Pokemon.csv", function (err, data) {
             .enter()
             .append("text")
             .text(function (d) {
-                return d.identifier + ' | bmi: ' + d3.round(d.bmi)  + ' | type: ' + d.type;
+                debugger;
+                return d.name + ' | bmi: ' + d3.round(d.bmi)  + ' | type: ' + d.type;
             })
             .attr("x", function (d) {
                 return x(d.id);
@@ -252,7 +277,7 @@ d3.csv("Pokemon.csv", function (err, data) {
             .attr("font-family", "sans-serif")
             .attr("font-size", "20px")
             .attr("fill", "black")
-            .attr("display", "none")
+            .attr("display", "none") //hide all until hovering
             .transition()
             .duration(500)
             .ease("bounce");
@@ -277,7 +302,7 @@ d3.csv("Pokemon.csv", function (err, data) {
     function fadeInText (pokemon) {
         svg.selectAll("text")
                 .filter(function (d) {
-                    return pokemon.identifier == d.identifier;
+                    return pokemon.id == d.id;
                 })
                 .transition()
                 .style("display", "inline");
@@ -286,7 +311,7 @@ d3.csv("Pokemon.csv", function (err, data) {
     function fadeOutText (pokemon) {
         svg.selectAll("text")
                 .filter(function (d) {
-                    return pokemon.identifier == d.identifier;
+                    return pokemon.id == d.id;
                 })
                 .transition()
                 .style("display", "none");
